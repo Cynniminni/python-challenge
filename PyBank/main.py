@@ -2,6 +2,10 @@ import os
 import csv
 
 def read_csv_file():
+    """
+    Reads the budget_data.csv file and returns it as csv_data. It drops the header row so only the actual data remains.
+    :return:
+    """
     current_working_directory = os.getcwd()
     file_path = os.path.join(current_working_directory, "Resources", "budget_data.csv")
     if os.path.exists(file_path):
@@ -43,6 +47,8 @@ def total(csv_data):
 def average_change(csv_data):
     """
     Return the average value of the "Profit/Losses" column.
+    This calculates the change between the current month and last month and places them in a list,
+    and then calculates the average of that list.
     :param csv_data:
     :return:
     """
@@ -66,6 +72,11 @@ def average_change(csv_data):
 def greatest_increase_in_profits(csv_data):
     """
     Return the largest value of the "Profit/Losses" column and its month.
+    This calculates the changes between the current month and last month, and saves the results into two lists:
+        month_list
+        change_list
+
+    Then it will find the largest value in change_list and pull out the corresponding month and return them.
     :param csv_data:
     :return:
     """
@@ -95,6 +106,11 @@ def greatest_increase_in_profits(csv_data):
 def greatest_decrease_in_profits(csv_data):
     """
     Return the lowest value of the "Profit/Losses" column and its month.
+    This calculates the changes between the current month and last month, and saves the results into two lists:
+        month_list
+        change_list
+
+    Then it will find the smallest value in change_list and pull out the corresponding month and return them.
     :param csv_data:
     :return:
     """
@@ -123,7 +139,7 @@ def greatest_decrease_in_profits(csv_data):
 
 def print_financial_analysis():
     """
-    This is the function that will print the end result for the homework assignment.
+    Print the final results for the homework assignment.
     :return:
     """
     csv_data = read_csv_file()

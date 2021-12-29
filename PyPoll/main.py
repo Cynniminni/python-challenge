@@ -2,6 +2,10 @@ import os
 import csv
 
 def read_csv_file():
+    """
+    Reads the election_data.csv file and returns it as csv_data. It drops the header row so only the actual data remains.
+    :return:
+    """
     current_working_directory = os.getcwd()
     file_path = os.path.join(current_working_directory, "Resources", "election_data.csv")
     if os.path.exists(file_path):
@@ -41,10 +45,24 @@ def count_total_candidate_votes(csv_data: list, candidate_name: str):
     return count
 
 def calculate_vote_percentage(total: int, votes: int):
+    """
+    Calculates the percentage, given a vote and a total. Formats the result to 3 decimal places.
+    :param total:
+    :param votes:
+    :return:
+    """
     result = (votes / total) * 100
     return f"{result:.3f}"
 
 def determine_winner(khan, correy, li, o_tooley):
+    """
+    Given a list of values for each candidate, determines which candidate has the largest value.
+    :param khan:
+    :param correy:
+    :param li:
+    :param o_tooley:
+    :return: Name of the candidate with the largest value
+    """
     # Determine winner
     biggest_value = max(khan, correy, li, o_tooley)
     if biggest_value == khan:
