@@ -46,9 +46,22 @@ def average_change(csv_data):
     :param csv_data:
     :return:
     """
-    total_profit_losses = total(csv_data)
-    total_months_count = total_months(csv_data)
-    return total_profit_losses / total_months_count
+    # Get all the profits and losses values into a single list
+    index = 0
+    change_list = []
+    for row in csv_data:
+        # Calculate the change between this month and last month, if last month exists
+        this_months_profit = int(row[1])
+        if csv_data[index - 1]:
+            last_months_profit = int(csv_data[index - 1][1])
+            change = this_months_profit - last_months_profit
+            change_list.append(change)
+        # Increment index counter by one
+        index += 1
+
+    # Drop the first element, csv_data[-1] is the last element and not applicable in this case
+    change_list.pop(0)
+    return round(sum(change_list) / len(change_list), 2)
 
 def greatest_increase_in_profits(csv_data):
     """
@@ -57,18 +70,27 @@ def greatest_increase_in_profits(csv_data):
     :return:
     """
     # Get all the profits and losses values into a single list
-    profit_losses_list = []
+    index = 0
+    month_list = []
+    change_list = []
     for row in csv_data:
-        profit_losses = int(row[1])
-        profit_losses_list.append(profit_losses)
+        # Calculate the change between this month and the next month, if next month exists
+        this_month = row[0]
+        this_months_profit = int(row[1])
+        if csv_data[index - 1]:
+            last_months_profit = int(csv_data[index - 1][1])
+            change = this_months_profit - last_months_profit
+            month_list.append(this_month)
+            change_list.append(change)
+        # Increment index counter by one
+        index += 1
 
-    # Get the largest profit value and its corresponding index
-    max_value = max(profit_losses_list)
-    max_index = profit_losses_list.index(max_value)
+    # Calculate largest change and get its corresponding month
+    largest_change = max(change_list)
+    largest_change_index = change_list.index(largest_change)
+    largest_month = month_list[largest_change_index]
 
-    # Get the date using the index
-    date = csv_data[max_index][0]
-    return f"{date} (${max_value})"
+    return f"{largest_month} (${largest_change})"
 
 def greatest_decrease_in_profits(csv_data):
     """
@@ -77,18 +99,27 @@ def greatest_decrease_in_profits(csv_data):
     :return:
     """
     # Get all the profits and losses values into a single list
-    profit_losses_list = []
+    index = 0
+    month_list = []
+    change_list = []
     for row in csv_data:
-        profit_losses = int(row[1])
-        profit_losses_list.append(profit_losses)
+        # Calculate the change between this month and the next month, if next month exists
+        this_month = row[0]
+        this_months_profit = int(row[1])
+        if csv_data[index - 1]:
+            last_months_profit = int(csv_data[index - 1][1])
+            change = this_months_profit - last_months_profit
+            month_list.append(this_month)
+            change_list.append(change)
+        # Increment index counter by one
+        index += 1
 
-    # Get the largest profit value and its corresponding index
-    min_value = min(profit_losses_list)
-    min_index = profit_losses_list.index(min_value)
+    # Calculate largest change and get its corresponding month
+    smallest_change = min(change_list)
+    smallest_change_index = change_list.index(smallest_change)
+    smallest_month = month_list[smallest_change_index]
 
-    # Get the date using the index
-    date = csv_data[min_index][0]
-    return f"{date} (${min_value})"
+    return f"{smallest_month} (${smallest_change})"
 
 def print_financial_analysis():
     """
