@@ -1,17 +1,22 @@
 import os
-import pandas
+import csv
 
-def read_budget_csv_file() -> pandas.DataFrame:
-    """
-    Reads the csv file and loads it into a variable of type DataFrame.
-    If the file is not found, raise a FileNotFoundError and end execution.
-    :return:
-    """
+def read_csv_file():
     current_working_directory = os.getcwd()
     file_path = os.path.join(current_working_directory, "Resources", "budget_data.csv")
     if os.path.exists(file_path):
-        budget_csv_data = pandas.read_csv(file_path)
-        return budget_csv_data
+        # Read csv file and save it as a list of lists
+        csv_data = []
+        with open(file_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row in csv_reader:
+                csv_data.append(row)
+
+        # Drop the header row
+        csv_data.pop(0)
+
+        # Return the csv data as a list
+        return csv_data
     else:
         raise FileNotFoundError(f"File not found at: {file_path}")
 
@@ -21,9 +26,7 @@ def total_months(csv_data):
     :param csv_data:
     :return:
     """
-    index = csv_data.index
-    total_num_rows = len(index)
-    return total_num_rows
+    return len(csv_data)
 
 def total(csv_data):
     """
@@ -31,7 +34,10 @@ def total(csv_data):
     :param csv_data:
     :return:
     """
-    total_profit_losses = csv_data["Profit/Losses"].sum()
+    total_profit_losses = 0
+    for row in csv_data:
+        profit_losses = int(row[1])
+        total_profit_losses += profit_losses
     return total_profit_losses
 
 def average_change(csv_data):
@@ -40,10 +46,9 @@ def average_change(csv_data):
     :param csv_data:
     :return:
     """
-    column = csv_data["Profit/Losses"]
-    average = column.mean()
-    format_average = "{:.2f}".format(average)
-    return format_average
+    total_profit_losses = total(csv_data)
+    total_months_count = total_months(csv_data)
+    return total_profit_losses / total_months_count
 
 def greatest_increase_in_profits(csv_data):
     """
@@ -51,11 +56,18 @@ def greatest_increase_in_profits(csv_data):
     :param csv_data:
     :return:
     """
-    column = csv_data["Profit/Losses"]
-    max_value = column.max()
-    max_index = column.idxmax()
-    column = csv_data["Date"]
-    date = column.get(max_index)
+    # Get all the profits and losses values into a single list
+    profit_losses_list = []
+    for row in csv_data:
+        profit_losses = int(row[1])
+        profit_losses_list.append(profit_losses)
+
+    # Get the largest profit value and its corresponding index
+    max_value = max(profit_losses_list)
+    max_index = profit_losses_list.index(max_value)
+
+    # Get the date using the index
+    date = csv_data[max_index][0]
     return f"{date} (${max_value})"
 
 def greatest_decrease_in_profits(csv_data):
@@ -64,11 +76,18 @@ def greatest_decrease_in_profits(csv_data):
     :param csv_data:
     :return:
     """
-    column = csv_data["Profit/Losses"]
-    min_value = column.min()
-    min_index = column.idxmin()
-    column = csv_data["Date"]
-    date = column.get(min_index)
+    # Get all the profits and losses values into a single list
+    profit_losses_list = []
+    for row in csv_data:
+        profit_losses = int(row[1])
+        profit_losses_list.append(profit_losses)
+
+    # Get the largest profit value and its corresponding index
+    min_value = min(profit_losses_list)
+    min_index = profit_losses_list.index(min_value)
+
+    # Get the date using the index
+    date = csv_data[min_index][0]
     return f"{date} (${min_value})"
 
 def print_financial_analysis():
@@ -76,7 +95,7 @@ def print_financial_analysis():
     This is the function that will print the end result for the homework assignment.
     :return:
     """
-    csv_data = read_budget_csv_file()
+    csv_data = read_csv_file()
     print("Financial Analysis")
     print("----------------------------")
     print(f"Total Months: {total_months(csv_data)}")
