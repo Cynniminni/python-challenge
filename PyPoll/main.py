@@ -79,18 +79,23 @@ def calculate_vote_percentage(candidate_dict: dict):
 
     for candidate, data in candidate_dict.items():
         data["vote_percentage"] = f"{round((int(data['votes']) / total) * 100, 2)}%"
+
+    # Add total number of votes to the dictionary
+    candidate_dict["total_votes"] = total
     return candidate_dict
 
 def determine_winner(candidate_dict) -> str:
     votes_list = []
     for candidate, data in candidate_dict.items():
-        votes = data["votes"]
-        votes_list.append(votes)
+        if isinstance(data, dict):
+            votes = data["votes"]
+            votes_list.append(votes)
     winner = max(votes_list)
 
     for candidate, data in candidate_dict.items():
-        if winner == data["votes"]:
-            winner = candidate
+        if isinstance(data, dict):
+            if winner == data["votes"]:
+                winner = candidate
     return winner
 
 def print_election_results():
@@ -100,12 +105,36 @@ def print_election_results():
     """
     # Read csv file and return it as a list
     csv_data = read_csv_file()
+
+    # Process the candidate dictionary
     candidate_dict = get_unique_candidate_list(csv_data)
     candidate_dict = count_candidate_votes(candidate_dict, csv_data)
     candidate_dict = calculate_vote_percentage(candidate_dict)
-    print(candidate_dict)
 
-    print(determine_winner(candidate_dict))
+    # Save results in a list of strings
+    candidate_lines = []
+    for candidate, data in candidate_dict.items():
+        if isinstance(data, dict):
+            candidate_lines.append(
+                f"{candidate}: {data['vote_percentage']} ({(data['votes'])})"
+            )
+
+    lines = [
+        "Election Results",
+        "-------------------------",
+        f"Total Votes: {candidate_dict['total_votes']}",
+        "-------------------------"
+    ]
+    lines.extend(candidate_lines)
+    winner_lines = [
+        "-------------------------",
+        f"Winner: {determine_winner(candidate_dict)}",
+        "-------------------------",
+    ]
+    lines.extend(winner_lines)
+
+    for line in lines:
+        print(line)
 
 
 # Entry point - Where the script begins to execute
