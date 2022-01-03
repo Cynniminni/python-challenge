@@ -32,49 +32,66 @@ def total_votes(csv_data):
     """
     return len(csv_data)
 
-def count_total_candidate_votes(csv_data: list, candidate_name: str):
+def get_unique_candidate_list(csv_data):
     """
-    Returns the total number of votes for a given candidate name.
+    Returns the unique list of candidates in a dictionary, where key is the candidate name and value is the number of votes.
+    The votes will all be 0 to begin.
+    :param csv_data:
     :return:
     """
-    count = 0
+    candidate_dict = {}
     for row in csv_data:
-        candidate = row[2]
-        if candidate == candidate_name:
-            count += 1
-    return count
+        candidate_name = row[2]
+        if candidate_name not in candidate_dict:
+            candidate_dict[candidate_name] = {
+                "votes": 0,
+                "vote_percentage": ""
+            }
+    return candidate_dict
 
-def calculate_vote_percentage(total: int, votes: int):
+def count_candidate_votes(candidate_dict: dict, csv_data: list) -> dict:
     """
-    Calculates the percentage, given a vote and a total. Formats the result to 3 decimal places.
-    :param total:
-    :param votes:
+    Go through the candidate list and count the number of votes each time it appears.
+    :param candidate_dict:
+    :param csv_data:
     :return:
     """
-    result = (votes / total) * 100
-    return f"{result:.3f}"
+    # Go through the csv and get the candidate's name
+    for row in csv_data:
+        candidate_name = row[2]
 
-def determine_winner(khan, correy, li, o_tooley):
+        # Add the candidate vote to the dictionary and update it
+        for candidate, data in candidate_dict.items():
+            if candidate_name == candidate:
+                data["votes"] += 1
+    return candidate_dict
+
+def calculate_vote_percentage(candidate_dict: dict):
     """
-    Given a list of values for each candidate, determines which candidate has the largest value.
-    :param khan:
-    :param correy:
-    :param li:
-    :param o_tooley:
-    :return: Name of the candidate with the largest value
+    Calculates the total number of votes and returns a dict containing the vote percentage for each candidate.
+    :param candidate_dict:
+    :return:
     """
-    # Determine winner
-    biggest_value = max(khan, correy, li, o_tooley)
-    if biggest_value == khan:
-        return "Khan"
-    elif biggest_value == correy:
-        return "Correy"
-    elif biggest_value == li:
-        return "Li"
-    elif biggest_value == o_tooley:
-        return "O'Tooley"
-    else:
-        print("ERROR, please check values are all correct")
+    # Get total vote count by adding all the votes together
+    total = 0
+    for data in candidate_dict.values():
+        total += data["votes"]
+
+    for candidate, data in candidate_dict.items():
+        data["vote_percentage"] = f"{round((int(data['votes']) / total) * 100, 2)}%"
+    return candidate_dict
+
+def determine_winner(candidate_dict) -> str:
+    votes_list = []
+    for candidate, data in candidate_dict.items():
+        votes = data["votes"]
+        votes_list.append(votes)
+    winner = max(votes_list)
+
+    for candidate, data in candidate_dict.items():
+        if winner == data["votes"]:
+            winner = candidate
+    return winner
 
 def print_election_results():
     """
@@ -83,35 +100,12 @@ def print_election_results():
     """
     # Read csv file and return it as a list
     csv_data = read_csv_file()
+    candidate_dict = get_unique_candidate_list(csv_data)
+    candidate_dict = count_candidate_votes(candidate_dict, csv_data)
+    candidate_dict = calculate_vote_percentage(candidate_dict)
+    print(candidate_dict)
 
-    # Get counts for each candidate
-    total_votes_count = total_votes(csv_data)
-    khan_total_votes = count_total_candidate_votes(csv_data, "Khan")
-    correy_total_votes = count_total_candidate_votes(csv_data, "Correy")
-    li_total_votes = count_total_candidate_votes(csv_data, "Li")
-    o_tooley_total_votes = count_total_candidate_votes(csv_data, "O'Tooley")
-
-    # Get percentages for each candidate
-    khan_percentage = calculate_vote_percentage(total_votes_count, khan_total_votes)
-    correy_percentage = calculate_vote_percentage(total_votes_count, correy_total_votes)
-    li_percentage = calculate_vote_percentage(total_votes_count, li_total_votes)
-    o_tooley_percentage = calculate_vote_percentage(total_votes_count, o_tooley_total_votes)
-
-    # Get winner
-    winner = determine_winner(khan_percentage, correy_percentage, li_percentage, o_tooley_percentage)
-
-    # Print election results
-    print("Election Results")
-    print("-------------------------")
-    print(f"Total Votes: {total_votes_count}")
-    print("-------------------------")
-    print(f"Khan: {khan_percentage}% ({khan_total_votes})")
-    print(f"Correy: {correy_percentage}% ({correy_total_votes})")
-    print(f"Li: {li_percentage}% ({li_total_votes})")
-    print(f"O'Tooley: {o_tooley_percentage}% ({o_tooley_total_votes})")
-    print("-------------------------")
-    print(f"Winner: {winner}")
-    print("-------------------------")
+    print(determine_winner(candidate_dict))
 
 
 # Entry point - Where the script begins to execute
